@@ -3,6 +3,7 @@ import { verifyAccessToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import type { AuthRequest } from '../models/auth.model';
 
+//kode untuk memeriksa apakah request yang masuk memiliki token akses yang valid. Jika token valid, maka payload dari token akan disimpan di req.user untuk digunakan di middleware atau route handler berikutnya. Jika token tidak valid atau tidak ada, maka akan mengembalikan error Unauthorized.
 export const authenticate = (req: AuthRequest, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 

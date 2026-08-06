@@ -7,8 +7,8 @@ import { AppError } from '../utils/AppError';
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-// const prisma = new PrismaClient();//menggunakan PrismaClient tanpa adapter PostgreSQL
-
+// kode untuk memeriksa apakah user yang melakukan request memiliki role yang sesuai dengan role yang
+// diizinkan untuk mengakses resource tertentu. Jika user tidak memiliki role yang sesuai, maka akan mengembalikan error Forbidden.
 export const authorize = (...roles: string[]) => {
   return async (req: AuthRequest, _res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {

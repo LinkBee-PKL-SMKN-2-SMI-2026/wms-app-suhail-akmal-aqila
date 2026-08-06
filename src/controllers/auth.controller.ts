@@ -1,29 +1,39 @@
 import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '../generated/prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg'; //tambahan untuk menghubungkan ke database PostgreSQL
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
 import type { RegisterRequest, LoginRequest } from '../models/auth.dto';
+import type { AuthRequest, TokenPayload } from '../models/auth.model';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../utils/logger';
 
-// const prisma = new PrismaClient();//menggunakan PrismaClient tanpa adapter PostgreSQL
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! }); //kode yang ditambahkan untuk menghubungkan ke database PostgreSQL
-const prisma = new PrismaClient({ adapter }); //dideklarasikan prisma dengan adapter PostgreSQL
+// Menghubungkan pg Pool ke Prisma Client dengan adapter PostgreSQL
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
-// ... kode register & login
-
+/**
+ * 1. REGISTER USER
+ * Menerima nama, email, dan password dari client.
+ * Memeriksa keunikan email, meng-hash password dengan bcrypt,
+ * menyimpan user baru (role STAFF), dan mengembalikan Access & Refresh Token.
+ */
 export const register = catchAsync(async (req: Request, res: Response) => {
   const { name, email, password } = req.body as RegisterRequest;
 
+  // Cek apakah email sudah terdaftar
   const existingUser = await prisma.users.findUnique({ where: { email } });
   if (existingUser) {
     throw new AppError('Email sudah terdaftar', 400);
   }
 
+  // Hash password (10 salt rounds)
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  // Simpan user baru ke database
   const user = await prisma.users.create({
     data: {
       name,
@@ -33,6 +43,7 @@ export const register = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
+  // Buat JWT tokens
   const payload = { userId: user.id, email: user.email };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
@@ -57,6 +68,12 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+/**
+ * 2. LOGIN USER
+ * Memeriksa keberadaan email, status keaktifan user (isActive),
+ * dan mencocokkan password hash menggunakan bcrypt.compare.
+ * Jika valid, mengembalikan Access & Refresh Token.
+ */
 export const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body as LoginRequest;
 
@@ -95,5 +112,41 @@ export const login = catchAsync(async (req: Request, res: Response) => {
         refreshToken,
       },
     },
+  });
+});
+
+/**
+ * 3. GET ME (PROFILE USER YANG SEDANG LOGIN)
+ * Mengambil data profil user berdasarkan userId yang didapat dari JWT Token
+ * (ditempelkan oleh middleware authenticate ke req.user).
+ * Penting: Password disembunyikan dengan fitur `select`.
+ */
+export const getMe = catchAsync(async (req: AuthRequest, res: Response) => {
+  if (!req.user) {
+    throw new AppError('Unauthorized: Token tidak ditemukan', 401);
+  }
+
+  const { userId } = req.user as TokenPayload;
+
+  const user = await prisma.users.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError('User tidak ditemukan', 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Data user berhasil diambil',
+    data: user,
   });
 });

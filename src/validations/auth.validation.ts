@@ -14,3 +14,6 @@ export const LoginSchema = z.object({
     password: z.string().min(1, 'Password wajib diisi'),
   }),
 });
+
+//intinya kode di atas adalah untuk membuat schema validasi untuk request body pada endpoint register dan login,
+// dimana schema tersebut menggunakan zod untuk memvalidasi data yang dikirimkan oleh client.

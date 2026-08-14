@@ -1,3 +1,5 @@
+// Product Controller
+
 import type { Request, Response } from 'express';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';

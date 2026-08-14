@@ -12,5 +12,3 @@ router.use('/locations', locationRoute);
 router.use('/products', productRoute);
 
 export default router;
-
-//intinya dia manggil route yang ada di folder routes, terus di export ke index.ts ini, jadi nanti di app.ts bisa langsung manggil index.ts ini aja

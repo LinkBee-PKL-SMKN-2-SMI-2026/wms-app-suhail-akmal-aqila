@@ -1,15 +1,15 @@
 import type { z } from 'zod';
 import type {
-  createCategorySchema,
-  getAllCategoriesSchema,
-  getCategoryByIdSchema,
-  updateCategorySchema,
-  deleteCategorySchema,
-} from '../validations/category.validation';
+  CreateLocationSchema,
+  GetAllLocationSchema,
+  GetLocationByIdSchema,
+  UpdateLocationSchema,
+  DeleteLocationSchema,
+} from '../validations/location.validation';
 
-export type CreateCategoryRequest = z.infer<typeof createCategorySchema>['body'];
-export type GetAllCategoryQuery = z.infer<typeof getAllCategoriesSchema>['query'];
-export type GetCategoryByIdParams = z.infer<typeof getCategoryByIdSchema>['params'];
-export type UpdateCategoryParams = z.infer<typeof updateCategorySchema>['params'];
-export type UpdateCategoryRequest = z.infer<typeof updateCategorySchema>['body'];
-export type DeleteCategoryParams = z.infer<typeof deleteCategorySchema>['params'];
+export type CreateLocationRequest = z.infer<typeof CreateLocationSchema>['body'];
+export type GetAllLocationQuery = z.infer<typeof GetAllLocationSchema>['query'];
+export type GetLocationByIdParams = z.infer<typeof GetLocationByIdSchema>['params'];
+export type UpdateLocationParams = z.infer<typeof UpdateLocationSchema>['params'];
+export type UpdateLocationRequest = z.infer<typeof UpdateLocationSchema>['body'];
+export type DeleteLocationParams = z.infer<typeof DeleteLocationSchema>['params'];

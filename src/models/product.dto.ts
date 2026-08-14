@@ -1,3 +1,5 @@
+// Product DTO
+
 import type { z } from 'zod';
 import type {
   CreateProductSchema,

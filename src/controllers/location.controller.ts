@@ -3,13 +3,13 @@ import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import type {
-  CreateCategoryRequest,
-  GetAllCategoryQuery,
-  GetCategoryByIdParams,
-  UpdateCategoryParams,
-  UpdateCategoryRequest,
-  DeleteCategoryParams,
-} from '../models/category.dto';
+  CreateLocationRequest,
+  GetAllLocationQuery,
+  GetLocationByIdParams,
+  UpdateLocationParams,
+  UpdateLocationRequest,
+  DeleteLocationParams,
+} from '../models/location.dto';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
 
@@ -17,48 +17,55 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-export const createCategory = catchAsync(async (req: Request, res: Response) => {
-  const { name, description } = req.body as CreateCategoryRequest;
+export const createLocation = catchAsync(async (req: Request, res: Response) => {
+  const { name, code } = req.body as CreateLocationRequest;
 
-  const existing = await prisma.categories.findUnique({ where: { name } });
-  if (existing) {
-    throw new AppError('Nama kategori sudah digunakan', 400);
+  const existingCode = await prisma.locations.findUnique({ where: { code } });
+  if (existingCode) {
+    throw new AppError('Kode lokasi sudah digunakan', 400);
   }
 
-  const category = await prisma.categories.create({
-    data: { name, description },
+  const location = await prisma.locations.create({
+    data: { name, code },
   });
 
   res.status(201).json({
     success: true,
-    message: 'Kategori berhasil dibuat',
-    data: category,
+    message: 'Lokasi berhasil dibuat',
+    data: location,
   });
 });
 
-export const getAllCategories = catchAsync(async (req: Request, res: Response) => {
-  const { page = '1', limit = '10', search, sort = 'desc' } = req.query as GetAllCategoryQuery;
+export const getAllLocations = catchAsync(async (req: Request, res: Response) => {
+  const { page = '1', limit = '10', search, sort = 'desc' } = req.query as GetAllLocationQuery;
 
-  const pageNum = Math.max(1, parseInt(String(page), 10));
-  const limitNum = Math.max(1, parseInt(String(limit), 10));
+  const pageNum = Math.max(1, parseInt(page, 10));
+  const limitNum = Math.max(1, parseInt(limit, 10));
   const skip = (pageNum - 1) * limitNum;
 
-  const where = search ? { name: { contains: search, mode: 'insensitive' as const } } : {};
+  const where = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { code: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
 
-  const [categories, total] = await Promise.all([
-    prisma.categories.findMany({
+  const [locations, total] = await Promise.all([
+    prisma.locations.findMany({
       where,
       skip,
       take: limitNum,
       orderBy: { createdAt: sort },
     }),
-    prisma.categories.count({ where }),
+    prisma.locations.count({ where }),
   ]);
 
   res.status(200).json({
     success: true,
-    message: 'Berhasil mengambil daftar kategori',
-    data: categories,
+    message: 'Berhasil mengambil daftar lokasi',
+    data: locations,
     pagination: {
       page: pageNum,
       limit: limitNum,
@@ -68,10 +75,10 @@ export const getAllCategories = catchAsync(async (req: Request, res: Response) =
   });
 });
 
-export const getCategoryById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as GetCategoryByIdParams;
+export const getLocationById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params as GetLocationByIdParams;
 
-  const category = await prisma.categories.findUnique({
+  const location = await prisma.locations.findUnique({
     where: { id },
     include: {
       _count: {
@@ -80,67 +87,67 @@ export const getCategoryById = catchAsync(async (req: Request, res: Response) =>
     },
   });
 
-  if (!category) {
-    throw new AppError('Kategori tidak ditemukan', 404);
+  if (!location) {
+    throw new AppError('Lokasi tidak ditemukan', 404);
   }
 
   res.status(200).json({
     success: true,
-    message: 'Berhasil mengambil detail kategori',
-    data: category,
+    message: 'Berhasil mengambil detail lokasi',
+    data: location,
   });
 });
 
-export const updateCategory = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as UpdateCategoryParams;
-  const { name, description } = req.body as UpdateCategoryRequest;
+export const updateLocation = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params as UpdateLocationParams;
+  const { name, code, isActive } = req.body as UpdateLocationRequest;
 
-  const existing = await prisma.categories.findUnique({ where: { id } });
+  const existing = await prisma.locations.findUnique({ where: { id } });
   if (!existing) {
-    throw new AppError('Kategori tidak ditemukan', 404);
+    throw new AppError('Lokasi tidak ditemukan', 404);
   }
 
-  if (name && name !== existing.name) {
-    const duplicate = await prisma.categories.findUnique({ where: { name } });
+  if (code && code !== existing.code) {
+    const duplicate = await prisma.locations.findUnique({ where: { code } });
     if (duplicate) {
-      throw new AppError('Nama kategori sudah digunakan', 400);
+      throw new AppError('Kode lokasi sudah digunakan', 400);
     }
   }
 
-  const updated = await prisma.categories.update({
+  const updated = await prisma.locations.update({
     where: { id },
-    data: { name, description, updatedAt: new Date() },
+    data: { name, code, isActive },
   });
 
   res.status(200).json({
     success: true,
-    message: 'Kategori berhasil diperbarui',
+    message: 'Lokasi berhasil diperbarui',
     data: updated,
   });
 });
 
-export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as DeleteCategoryParams;
+export const deleteLocation = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params as DeleteLocationParams;
 
-  const category = await prisma.categories.findUnique({
+  const location = await prisma.locations.findUnique({
     where: { id },
     include: {
       _count: { select: { products: true } },
     },
   });
 
-  if (!category) {
-    throw new AppError('Kategori tidak ditemukan', 404);
+  if (!location) {
+    throw new AppError('Lokasi tidak ditemukan', 404);
   }
 
-  if (category._count.products > 0) {
-    throw new AppError('Tidak dapat menghapus kategori yang masih memiliki produk terkait', 400);
+  if (location._count.products > 0) {
+    throw new AppError('Tidak dapat menghapus lokasi yang masih memiliki produk terkait', 400);
   }
 
-  await prisma.categories.delete({ where: { id } });
+  await prisma.locations.delete({ where: { id } });
 
   res.status(200).json({
     success: true,
-    message: 'Kategori berhasil dihapus',
+    message: 'Lokasi berhasil dihapus',
   });
 });

@@ -1,39 +1,40 @@
 import z from 'zod';
 
-export const createCategorySchema = z.object({
+export const CreateCategorySchema = z.object({
   body: z.object({
-    name: z.string().min(3, { message: 'Nama kategori tidak boleh kosong' }),
+    name: z.string().min(3, 'Nama kategori minimal 3 karakter'),
     description: z.string().optional(),
   }),
 });
 
-export const getAllCategoriesSchema = z.object({
+export const GetAllCategorySchema = z.object({
   query: z.object({
-    page: z.number().int().min(1).optional(),
-    limit: z.number().int().min(1).optional(),
+    page: z.string().optional(),
+    limit: z.string().optional(),
     search: z.string().optional(),
     sort: z.enum(['asc', 'desc']).optional(),
   }),
 });
 
-export const getCategoryByIdSchema = z.object({
+export const GetCategoryByIdSchema = z.object({
   params: z.object({
-    id: z.string().uuid({ message: 'ID kategori tidak valid' }),
+    id: z.string().uuid('ID tidak valid'),
   }),
 });
 
-export const updateCategorySchema = z.object({
+export const UpdateCategorySchema = z.object({
   params: z.object({
-    id: z.string().uuid({ message: 'ID kategori tidak valid' }),
+    id: z.string().uuid('ID tidak valid'),
   }),
   body: z.object({
-    name: z.string().min(3, { message: 'Nama kategori tidak boleh kosong' }).optional(),
+    name: z.string().min(3, 'Nama kategori minimal 3 karakter').optional(),
     description: z.string().optional(),
+    isActive: z.boolean().optional(),
   }),
 });
 
-export const deleteCategorySchema = z.object({
+export const DeleteCategorySchema = z.object({
   params: z.object({
-    id: z.string().uuid({ message: 'ID kategori tidak valid' }),
+    id: z.string().uuid('ID tidak valid'),
   }),
 });

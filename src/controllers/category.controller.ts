@@ -39,8 +39,8 @@ export const createCategory = catchAsync(async (req: Request, res: Response) => 
 export const getAllCategories = catchAsync(async (req: Request, res: Response) => {
   const { page = '1', limit = '10', search, sort = 'desc' } = req.query as GetAllCategoryQuery;
 
-  const pageNum = Math.max(1, parseInt(String(page), 10));
-  const limitNum = Math.max(1, parseInt(String(limit), 10));
+  const pageNum = Math.max(1, parseInt(page, 10));
+  const limitNum = Math.max(1, parseInt(limit, 10));
   const skip = (pageNum - 1) * limitNum;
 
   const where = search ? { name: { contains: search, mode: 'insensitive' as const } } : {};
@@ -93,7 +93,7 @@ export const getCategoryById = catchAsync(async (req: Request, res: Response) =>
 
 export const updateCategory = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as UpdateCategoryParams;
-  const { name, description } = req.body as UpdateCategoryRequest;
+  const { name, description, isActive } = req.body as UpdateCategoryRequest;
 
   const existing = await prisma.categories.findUnique({ where: { id } });
   if (!existing) {
@@ -109,7 +109,7 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
 
   const updated = await prisma.categories.update({
     where: { id },
-    data: { name, description, updatedAt: new Date() },
+    data: { name, description, isActive },
   });
 
   res.status(200).json({

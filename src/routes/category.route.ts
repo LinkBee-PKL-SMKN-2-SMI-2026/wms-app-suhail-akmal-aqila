@@ -3,11 +3,11 @@ import { validate } from '../middlewares/validate.middleware';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { authorize } from '../middlewares/authorize.middleware';
 import {
-  createCategorySchema,
-  getAllCategoriesSchema,
-  getCategoryByIdSchema,
-  updateCategorySchema,
-  deleteCategorySchema,
+  CreateCategorySchema,
+  GetAllCategorySchema,
+  GetCategoryByIdSchema,
+  UpdateCategorySchema,
+  DeleteCategorySchema,
 } from '../validations/category.validation';
 import {
   createCategory,
@@ -22,13 +22,13 @@ const router = Router();
 
 router.use(authenticate);
 
-router.post('/', authorize('ADMIN'), validate(createCategorySchema), createCategory);
-router.get('/', validate(getAllCategoriesSchema), getAllCategories);
-router.get('/:id', validate(getCategoryByIdSchema), getCategoryById);
-router.put('/:id', authorize('ADMIN'), validate(updateCategorySchema), updateCategory);
-router.delete('/:id', authorize('ADMIN'), validate(deleteCategorySchema), deleteCategory);
+router.post('/', authorize('ADMIN'), validate(CreateCategorySchema), createCategory);
+router.get('/', validate(GetAllCategorySchema), getAllCategories);
+router.get('/:id', validate(GetCategoryByIdSchema), getCategoryById);
+router.put('/:id', authorize('ADMIN'), validate(UpdateCategorySchema), updateCategory);
+router.delete('/:id', authorize('ADMIN'), validate(DeleteCategorySchema), deleteCategory);
 
-router.all('*', (_req, _res, next) => {
+router.all('{*path}', (_req, _res, next) => {
   next(new AppError('Method not allowed', 405));
 });
 

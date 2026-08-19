@@ -220,4 +220,4 @@ export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//
+//.

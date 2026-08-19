@@ -1,7 +1,7 @@
 /**
  * Penjelasan Import Module & Tipe Data:
  *
- * File ini mengimpor beberapa modul utama untuk kebutuhan controller Express.
+ * File ini mengimpor beberapa modul utama untuk kebutuhan controller Express..
  * - 'Request' dan 'Response' dari Express digunakan sebagai tipe data parameter handler HTTP.
  * - 'PrismaClient' dari Prisma yang di-generate digunakan untuk menjalankan kueri ke database.
  * - 'PrismaPg' dan 'pg' digunakan untuk mengonfigurasi koneksi PostgreSQL via adapter pool.

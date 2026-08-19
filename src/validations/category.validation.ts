@@ -88,5 +88,5 @@ export const DeleteCategorySchema = z.object({
  * 1. Skema di atas menggunakan library Zod untuk melakukan validasi runtime pada objek request API (body, query, params).
  * 2. Zod memastikan bahwa data yang dikirim oleh client sesuai dengan struktur dan aturan tipe data yang diharapkan server sebelum diproses oleh controller/service.
  * 3. Jika input tidak sesuai aturan (misal: ID bukan UUID atau nama kurang dari 3 karakter), Zod akan melempar pesan error kustom yang telah ditentukan.
- * 4. Skema ini juga nantinya digunakan bersama `z.infer<typeof Schema>` untuk menghasilkan tipe TypeScript secara otomatis sehingga kode controller tetap type-safe..
+ * 4. Skema ini juga nantinya digunakan bersama `z.infer<typeof Schema>` untuk menghasilkan tipe TypeScript secara otomatis sehingga kode controller tetap type-safe...
  */

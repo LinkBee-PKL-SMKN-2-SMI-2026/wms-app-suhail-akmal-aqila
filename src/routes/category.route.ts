@@ -115,5 +115,5 @@ export default router;
 
 
 L path dan rantai middleware, sedangkan logika penanganan data ditangani terpisah oleh `category.controller`.
-
+  * 4. Error Handling Terpusat: Semua error dilempar ke middleware error handler melalui `next()`, termasuk fallback untuk method yang tidak diizinkan.
 */

@@ -37,7 +37,7 @@ const prisma = new PrismaClient({ adapter });
 /**
  * createCategory Controller
  * Fungsi untuk membuat kategori baru.
- * 
+ *
  * - Menerima data name dan description dari req.body.
  * - Memeriksa apakah nama kategori sudah terdaftar di database untuk menghindari duplikasi.
  * - Jika nama sudah ada, melempar AppError dengan status code 400 (Bad Request).
@@ -67,7 +67,7 @@ export const createCategory = catchAsync(async (req: Request, res: Response) => 
 /**
  * getAllCategories Controller
  * Fungsi untuk mengambil seluruh daftar kategori dengan fitur pagination, pencarian, dan pengurutan.
- * 
+ *
  * - Mengambil query parameter: page (halaman), limit (jumlah item per halaman), search (kata kunci pencarian), dan sort (urutan ascending/descending).
  * - Menghitung nilai offset (skip) dan batasan data (take) untuk pagination.
  * - Membuat filter 'where' untuk pencarian nama kategori yang bersifat case-insensitive (jika search diberikan).
@@ -110,7 +110,7 @@ export const getAllCategories = catchAsync(async (req: Request, res: Response) =
 /**
  * getCategoryById Controller
  * Fungsi untuk mengambil detail kategori spesifik berdasarkan ID.
- * 
+ *
  * - Mengambil parameter 'id' dari req.params.
  * - Mencari data kategori menggunakan Prisma findUnique sekaligus menghitung jumlah produk terkait (_count.products).
  * - Jika kategori tidak ditemukan, melempar AppError dengan status code 404 (Not Found).
@@ -143,7 +143,7 @@ export const getCategoryById = catchAsync(async (req: Request, res: Response) =>
 /**
  * updateCategory Controller
  * Fungsi untuk memperbarui data kategori yang sudah ada.
- * 
+ *
  * - Mengambil 'id' dari req.params dan field yang ingin diubah (name, description, isActive) dari req.body.
  * - Memeriksa keberadaan kategori berdasarkan ID; jika tidak ada, lempar AppError 404.
  * - Jika nama kategori diubah, dilakukan pengecekan apakah nama baru tersebut sudah digunakan oleh kategori lain (pengecekan duplikasi).
@@ -182,7 +182,7 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
 /**
  * deleteCategory Controller
  * Fungsi untuk menghapus kategori dari database.
- * 
+ *
  * - Mengambil parameter 'id' dari req.params.
  * - Mencari data kategori beserta jumlah produk (_count.products) yang terhubung.
  * - Jika kategori tidak ditemukan, melempar AppError 404.

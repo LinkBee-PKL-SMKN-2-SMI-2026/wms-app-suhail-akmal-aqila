@@ -13,3 +13,5 @@ export type GetLocationByIdParams = z.infer<typeof GetLocationByIdSchema>['param
 export type UpdateLocationParams = z.infer<typeof UpdateLocationSchema>['params'];
 export type UpdateLocationRequest = z.infer<typeof UpdateLocationSchema>['body'];
 export type DeleteLocationParams = z.infer<typeof DeleteLocationSchema>['params'];
+
+//

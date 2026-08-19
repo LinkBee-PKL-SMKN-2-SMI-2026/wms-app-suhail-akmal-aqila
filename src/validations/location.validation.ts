@@ -38,3 +38,5 @@ export const DeleteLocationSchema = z.object({
     id: z.string().uuid('ID tidak valid'),
   }),
 });
+
+//

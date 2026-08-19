@@ -111,5 +111,8 @@ export default router;
  *
  * 1. Keamanan Bertingkat: Setiap route dilindungi otentikasi global (`authenticate`), lalu dibatasi lagi oleh hak akses (`authorize('ADMIN')`) untuk aksi mutasi data (POST, PUT, DELETE).
  * 2. Validasi Data Otomatis: Setiap request akan disaring terlebih dahulu oleh middleware `validate()` dengan skema Zod sebelum diteruskan ke fungsi controller.
- * 3. Separation of Concerns: File route ini fokus mendefinisikan URL path dan rantai middleware, sedangkan logika penanganan data ditangani terpisah oleh `category.controller`.
- */
+ * 3. Separation of Concerns: File route ini fokus mendefinisikan UR
+
+
+L path dan rantai middleware, sedangkan logika penanganan data ditangani terpisah oleh `category.controller`.
+*/

@@ -151,3 +151,6 @@ export const deleteLocation = catchAsync(async (req: Request, res: Response) => 
     message: 'Lokasi berhasil dihapus',
   });
 });
+
+
+//

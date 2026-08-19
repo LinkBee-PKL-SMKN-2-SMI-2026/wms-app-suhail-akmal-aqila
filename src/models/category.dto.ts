@@ -36,5 +36,5 @@ export type DeleteCategoryParams = z.infer<typeof DeleteCategorySchema>['params'
  * Dengan menggunakan tipe data ini, kita dapat memanfaatkan fitur TypeScript seperti autocompletion dan type checking untuk meningkatkan kualitas kode dan mengurangi potensi bug.
  * Pastikan untuk selalu memperbarui tipe data ini jika ada perubahan pada skema validasi Zod.
  * Dengan cara ini, kita dapat menjaga konsistensi antara skema validasi dan tipe data yang digunakan di seluruh aplikasi.
- * Ini juga membantu dalam dokumentasi kode, karena tipe data ini memberikan informasi yang jelas tentang struktur data yang diharapkan oleh setiap endpoint API..
+ * Ini juga membantu dalam dokumentasi kode, karena tipe data ini memberikan informasi yang jelas tentang struktur data yang diharapkan oleh setiap endpoint API...
  */

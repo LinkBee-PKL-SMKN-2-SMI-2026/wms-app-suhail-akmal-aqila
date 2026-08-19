@@ -16,6 +16,4 @@ export type UpdateProductParams = z.infer<typeof UpdateProductSchema>['params'];
 export type UpdateProductRequest = z.infer<typeof UpdateProductSchema>['body'];
 export type DeleteProductParams = z.infer<typeof DeleteProductSchema>['params'];
 
-
 //
-

@@ -27,6 +27,7 @@ router.get('/', validate(GetAllProductSchema), getAllProducts);
 router.get('/:id', validate(GetProductByIdSchema), getProductById);
 router.put('/:id', authorize('ADMIN'), validate(UpdateProductSchema), updateProduct);
 router.delete('/:id', authorize('ADMIN'), validate(DeleteProductSchema), deleteProduct);
+router.get('/:id/stock', validate(GetProductByIdSchema), getProductById);
 
 router.all('{*path}', (_req, _res, next) => {
   next(new AppError('Method not allowed', 405));

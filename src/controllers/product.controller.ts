@@ -221,3 +221,99 @@ export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
 });
 
 //.
+
+// ini buat tugas 4 express dimana kita lakukan get pada endpoint /products/:id untuk mendapatkan detail produk berdasarkan ID.
+// Endpoint ini akan mengembalikan informasi produk termasuk kategori dan lokasi terkait. Jika produk tidak ditemukan, akan mengembalikan error 404.
+
+/**
+ * @route GET /products/:id
+ * @desc Mendapatkan detail produk berdasarkan ID
+ * @access Public
+ *
+ * inti dari kode ini adalah untuk mengambil detail produk berdasarkan ID yang diberikan pada parameter URL.
+ * Endpoint ini akan mengembalikan informasi produk termasuk kategori dan lokasi terkait.
+ * Jika produk tidak ditemukan, akan mengembalikan error 404.
+ *
+ * @param {string} id - ID produk yang ingin diambil
+ * @returns {object} - Objek JSON berisi detail produk, kategori, dan lokasi
+ * @throws {AppError} - Jika produk tidak ditemukan, akan melempar error 404
+ *
+ * @example
+ * // Request
+ * GET /products/123e4567-e89b-12d3-a456-426614174000
+ *
+ * // Response
+ * {
+ *   "success": true,
+ *   "message": "Berhasil mengambil detail produk",
+ *   "data": {
+ *     "id": "123e4567-e89b-12d3-a456-426614174000",
+ *     "name": "Produk A",
+ *     "sku": "SKU123",
+ *     "description": "Deskripsi produk A",
+ *     "stock": 100,
+ *     "minimumStock": 10,
+ *     "categoryId": "cat123",
+ *     "locationId": "loc123",
+ *     "category": {
+ *       "id": "cat123",
+ *       "name": "Kategori A"
+ *     },
+ *     "location": {
+ *       "id": "loc123",
+ *       "name": "Lokasi A"
+ *     }
+ *   }
+ * }
+ */
+export const getProductStock = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params as GetProductByIdParams;
+
+  const product = await prisma.products.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      sku: true,
+      stock: true,
+      minimumStock: true,
+    },
+  });
+
+  if (!product) {
+    throw new AppError('Produk tidak ditemukan', 404);
+  }
+
+  /**
+   * kode yang ada di bawah ini digunakan untuk menentukan status stok produk berdasarkan jumlah stok saat ini dan minimum stok yang ditentukan.
+   * Status dapat berupa 'safe' (aman), 'low' (rendah), atau 'out' (habis).
+   * Jika stok produk sama dengan 0, status akan menjadi 'out'.
+   * Jika stok produk kurang dari atau sama dengan minimum stok, status akan menjadi 'low'.
+   * Jika stok produk lebih besar dari minimum stok, status akan tetap 'safe'.
+   *
+   * @type {'safe' | 'low' | 'out'}
+   * @default 'safe'
+   *
+   * @example
+   * // Jika stok produk adalah 0, status akan menjadi 'out'
+   */
+  let status: 'safe' | 'low' | 'out' = 'safe';
+  if (product.stock === 0) {
+    status = 'out';
+  } else if (product.stock <= product.minimumStock) {
+    status = 'low';
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Berhasil mengambil info stok produk',
+    data: {
+      productId: product.id,
+      name: product.name,
+      sku: product.sku,
+      currentStock: product.stock,
+      minimumStock: product.minimumStock,
+      status,
+    },
+  });
+});

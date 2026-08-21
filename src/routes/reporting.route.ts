@@ -1,10 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middlewares/validate.middleware';
 import { GetSummarySchema, GetLowStockSchema } from '../validations/reporting.validation';
-import { 
-    getSummary, 
-    getLowStock 
-} from '../controllers/reporting.controller';
+import { getSummary, getLowStock } from '../controllers/reporting.controller';
 import { authenticate } from '../middlewares/authenticate.middleware';
 import { AppError } from '../utils/AppError';
 

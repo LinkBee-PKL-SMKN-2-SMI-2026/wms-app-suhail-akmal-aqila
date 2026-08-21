@@ -21,7 +21,7 @@ router.post('/inbound', validate(CreateInboundSchema), createInbound);
 router.post('/outbound', validate(CreateOutboundSchema), createOutbound);
 router.get('/history', validate(GetMovementHistorySchema), getMovementHistory);
 
-router.all('*', (_req, _res, next) => {
+router.all('{*path}', (_req, _res, next) => {
   next(new AppError('Method not allowed', 405));
 });
 

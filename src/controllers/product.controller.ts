@@ -75,8 +75,8 @@ export const getAllProducts = catchAsync(async (req: Request, res: Response) => 
     locationId,
   } = req.query as GetAllProductQuery;
 
-  const pageNum = Math.max(1, parseInt(page, 10));
-  const limitNum = Math.max(1, parseInt(limit, 10));
+  const pageNum = Number(page);
+  const limitNum = Number(limit);
   const skip = (pageNum - 1) * limitNum;
 
   const where: Record<string, unknown> = {};

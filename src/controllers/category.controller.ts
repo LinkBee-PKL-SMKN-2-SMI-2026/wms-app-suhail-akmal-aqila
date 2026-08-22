@@ -7,6 +7,7 @@
  * - 'PrismaPg' dan 'pg' digunakan untuk mengonfigurasi koneksi PostgreSQL via adapter pool.
  * - Tipe DTO ('CreateCategoryRequest', 'GetAllCategoryQuery', 'GetCategoryByIdParams', 'UpdateCategoryParams', 'UpdateCategoryRequest', 'DeleteCategoryParams') digunakan untuk type casting parameter request (body, query, params) agar sesuai dengan skema validasi Zod.
  * - 'AppError' adalah kelas custom penanganan error HTTP, sedangkan 'catchAsync' adalah wrapper fungsi asynchronous untuk mengalirkan error otomatis ke middleware Express.
+ * - 'logActivity' digunakan untuk mencatat setiap aktivitas/aksi pengguna ke dalam tabel ActivityLog untuk kebutuhan audit trail.
  */
 
 import type { Request, Response } from 'express';
@@ -21,8 +22,10 @@ import type {
   UpdateCategoryRequest,
   DeleteCategoryParams,
 } from '../models/category.dto';
+import type { AuthRequest } from '../models/auth.model';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
+import { logActivity } from '../services/activity-log.service';
 
 /**
  * Konfigurasi Database & Prisma Client:
@@ -46,7 +49,7 @@ const prisma = new PrismaClient({ adapter });
  * - Mengembalikan response HTTP 201 (Created) beserta data kategori yang berhasil dibuat.
  */
 
-export const createCategory = catchAsync(async (req: Request, res: Response) => {
+export const createCategory = catchAsync(async (req: AuthRequest, res: Response) => {
   const { name, description } = req.body as CreateCategoryRequest;
 
   const existing = await prisma.categories.findUnique({ where: { name } });
@@ -57,6 +60,25 @@ export const createCategory = catchAsync(async (req: Request, res: Response) => 
   const category = await prisma.categories.create({
     data: { name, description },
   });
+
+  /**
+   * [PENCATATAN ACTIVITY LOG - CREATE CATEGORY]
+   * Bagian ini mencatat riwayat pembuat entri kategori baru ke tabel ActivityLog.
+   * - 'userId': Mengambil ID pengguna yang terautentikasi (req.user.userId).
+   * - 'action': Berisi nilai 'CREATE' untuk menandai operasi pembuatan data.
+   * - 'entity': Berisi nama tabel/entitas terkait yaitu 'Categories'.
+   * - 'entityId': ID dari record kategori yang baru saja dibuat.
+   * - 'detail': Menyimpan objek berisi nama kategori baru sebagai informasi tambahan log.
+   */
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'CREATE',
+      entity: 'Categories',
+      entityId: category.id,
+      detail: { name: category.name },
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -152,7 +174,7 @@ export const getCategoryById = catchAsync(async (req: Request, res: Response) =>
  * - Mengembalikan response HTTP 200 (OK) beserta data kategori yang telah diperbarui.
  */
 
-export const updateCategory = catchAsync(async (req: Request, res: Response) => {
+export const updateCategory = catchAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as UpdateCategoryParams;
   const { name, description, isActive } = req.body as UpdateCategoryRequest;
 
@@ -172,6 +194,25 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
     where: { id },
     data: { name, description, isActive },
   });
+
+  /**
+   * [PENCATATAN ACTIVITY LOG - UPDATE CATEGORY]
+   * Bagian ini mencatat aktivitas pengubahan data kategori ke tabel ActivityLog.
+   * - 'userId': ID pengguna yang melakukan perubahan (req.user.userId).
+   * - 'action': Berisi nilai 'UPDATE' untuk menandai operasi pembaruan data.
+   * - 'entity': Nama entitas terkait yaitu 'Categories'.
+   * - 'entityId': ID dari entitas kategori yang diubah.
+   * - 'detail': Menyimpan rincian field/perubahan data yang baru (name, description, isActive).
+   */
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'UPDATE',
+      entity: 'Categories',
+      entityId: updated.id,
+      detail: { changes: { name, description, isActive } },
+    });
+  }
 
   res.status(200).json({
     success: true,
@@ -193,7 +234,7 @@ export const updateCategory = catchAsync(async (req: Request, res: Response) => 
  * - Mengembalikan response HTTP 200 (OK) dengan pesan konfirmasi berhasil.
  */
 
-export const deleteCategory = catchAsync(async (req: Request, res: Response) => {
+export const deleteCategory = catchAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as DeleteCategoryParams;
 
   const category = await prisma.categories.findUnique({
@@ -212,6 +253,23 @@ export const deleteCategory = catchAsync(async (req: Request, res: Response) => 
   }
 
   await prisma.categories.delete({ where: { id } });
+
+  /**
+   * [PENCATATAN ACTIVITY LOG - DELETE CATEGORY]
+   * Bagian ini mencatat aktivitas penghapusan kategori ke tabel ActivityLog.
+   * - 'userId': ID pengguna yang melakukan tindakan penghapusan (req.user.userId).
+   * - 'action': Berisi nilai 'DELETE' untuk menandai operasi penghapusan data.
+   * - 'entity': Nama entitas terkait yaitu 'Categories'.
+   * - 'entityId': ID kategori yang telah dihapus dari database.
+   */
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'DELETE',
+      entity: 'Categories',
+      entityId: id,
+    });
+  }
 
   res.status(200).json({
     success: true,

@@ -12,14 +12,18 @@ import type {
   UpdateProductRequest,
   DeleteProductParams,
 } from '../models/product.dto';
+// [ACTIVITY LOG] Import AuthRequest untuk mendapatkan req.user.userId & import service logActivity
+import type { AuthRequest } from '../models/auth.model';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
+import { logActivity } from '../services/activity-log.service';
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-export const createProduct = catchAsync(async (req: Request, res: Response) => {
+// [ACTIVITY LOG] Mengubah tipe req menjadi AuthRequest
+export const createProduct = catchAsync(async (req: AuthRequest, res: Response) => {
   const { name, sku, description, stock, minimumStock, categoryId, locationId } =
     req.body as CreateProductRequest;
 
@@ -57,6 +61,17 @@ export const createProduct = catchAsync(async (req: Request, res: Response) => {
       location: true,
     },
   });
+
+  // [ACTIVITY LOG] Catat aktivitas pembuatan produk baru
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'CREATE',
+      entity: 'Products',
+      entityId: product.id,
+      detail: { name: product.name, sku: product.sku, stock: product.stock },
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -144,7 +159,8 @@ export const getProductById = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
-export const updateProduct = catchAsync(async (req: Request, res: Response) => {
+// [ACTIVITY LOG] Mengubah tipe req menjadi AuthRequest
+export const updateProduct = catchAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as UpdateProductParams;
   const { name, sku, description, minimumStock, categoryId, locationId, isActive } =
     req.body as UpdateProductRequest;
@@ -184,6 +200,19 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
+  // [ACTIVITY LOG] Catat aktivitas pembaruan data produk
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'UPDATE',
+      entity: 'Products',
+      entityId: updated.id,
+      detail: {
+        changes: { name, sku, description, minimumStock, categoryId, locationId, isActive },
+      },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Produk berhasil diperbarui',
@@ -191,7 +220,8 @@ export const updateProduct = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
+// [ACTIVITY LOG] Mengubah tipe req menjadi AuthRequest
+export const deleteProduct = catchAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as DeleteProductParams;
 
   const product = await prisma.products.findUnique({
@@ -213,6 +243,16 @@ export const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   }
 
   await prisma.products.delete({ where: { id } });
+
+  // [ACTIVITY LOG] Catat aktivitas penghapusan produk
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'DELETE',
+      entity: 'Products',
+      entityId: id,
+    });
+  }
 
   res.status(200).json({
     success: true,

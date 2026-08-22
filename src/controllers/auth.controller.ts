@@ -9,6 +9,7 @@ import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
 import { logger } from '../utils/logger';
+import { logActivity } from '../services/activity-log.service';
 
 // Menghubungkan pg Pool ke Prisma Client dengan adapter PostgreSQL
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
@@ -49,6 +50,23 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = generateRefreshToken(payload);
 
   logger.info(`User registered successfully: ${user.email}`);
+
+  /**
+   * [PENCATATAN ACTIVITY LOG - REGISTER USER]
+   * Bagian ini mencatat aktivitas pembuatan/pendaftaran akun pengguna baru ke tabel ActivityLog.
+   * - 'userId': ID dari user baru yang berhasil dibuat.
+   * - 'action': Berisi nilai 'CREATE' untuk menandai pendaftaran entitas baru.
+   * - 'entity': Nama entitas terkait yaitu 'Users'.
+   * - 'entityId': ID dari user baru yang tersimpan di tabel Users.
+   * - 'detail': Objek yang memuat detail identitas user seperti email dan nama.
+   */
+  await logActivity({
+    userId: user.id,
+    action: 'CREATE',
+    entity: 'Users',
+    entityId: user.id,
+    detail: { email: user.email, name: user.name },
+  });
 
   res.status(201).json({
     status: 'success',
@@ -96,6 +114,21 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   const refreshToken = generateRefreshToken(payload);
 
   logger.info(`User logged in successfully: ${user.email}`);
+
+  /**
+   * [PENCATATAN ACTIVITY LOG - LOGIN USER]
+   * Bagian ini mencatat peristiwa autentikasi/masuk pengguna ke dalam sistem ke tabel ActivityLog.
+   * - 'userId': ID pengguna yang berhasil melewati autentikasi.
+   * - 'action': Berisi nilai 'LOGIN' untuk menandai aktivitas login.
+   * - 'entity': Nama entitas pengguna yaitu 'Users'.
+   * - 'entityId': ID dari pengguna yang melakukan login.
+   */
+  await logActivity({
+    userId: user.id,
+    action: 'LOGIN',
+    entity: 'Users',
+    entityId: user.id,
+  });
 
   res.status(200).json({
     status: 'success',

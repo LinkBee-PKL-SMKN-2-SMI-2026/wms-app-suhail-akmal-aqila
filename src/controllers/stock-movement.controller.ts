@@ -10,6 +10,8 @@ import type {
 } from '../models/stock-movement.dto';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
+// [ACTIVITY LOG] Import service logActivity untuk pencatatan log
+import { logActivity } from '../services/activity-log.service';
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
 const adapter = new PrismaPg(pool);
@@ -67,6 +69,21 @@ export const createInbound = catchAsync(async (req: AuthRequest, res: Response) 
     return { movement, updatedProduct };
   });
 
+  // [ACTIVITY LOG] Catat aktivitas barang masuk ke tabel ActivityLog
+  await logActivity({
+    userId,
+    action: 'CREATE',
+    entity: 'Stock_Movements',
+    entityId: result.movement.id,
+    detail: {
+      type: 'INBOUND',
+      productId,
+      productName: product.name,
+      quantity,
+      notes,
+    },
+  });
+
   res.status(201).json({
     success: true,
     message: 'Barang masuk berhasil dicatat',
@@ -117,6 +134,21 @@ export const createOutbound = catchAsync(async (req: AuthRequest, res: Response)
     });
 
     return { movement, updatedProduct };
+  });
+
+  // [ACTIVITY LOG] Catat aktivitas barang keluar ke tabel ActivityLog
+  await logActivity({
+    userId,
+    action: 'CREATE',
+    entity: 'Stock_Movements',
+    entityId: result.movement.id,
+    detail: {
+      type: 'OUTBOUND',
+      productId,
+      productName: product.name,
+      quantity,
+      notes,
+    },
   });
 
   res.status(201).json({

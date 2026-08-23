@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: Dashboard Stats Module
+  version: 1.0.0
+paths:
+  /api/dashboard/stats:
+    get:
+      summary: Get real-time dashboard statistics
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [today, week, month]
+            default: week
+      responses:
+        '200':
+          description: Statistik dashboard berhasil diambil
+
+  /api/dashboard/recent-movements:
+    get:
+      summary: Get recent stock movements for dashboard
+      tags:
+        - Dashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Pergerakan barang terbaru berhasil diambil

@@ -1,0 +1,87 @@
+openapi: 3.1.0
+info:
+  title: Stock Movements Module
+  version: 1.0.0
+paths:
+  /api/movements/inbound:
+    post:
+      summary: Catat barang masuk (INBOUND)
+      tags:
+        - Stock Movements
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, quantity]
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  example: 50
+                notes:
+                  type: string
+                  example: "Restok dari Supplier A"
+      responses:
+        '201':
+          description: Barang masuk berhasil dicatat
+
+  /api/movements/outbound:
+    post:
+      summary: Catat barang keluar (OUTBOUND)
+      tags:
+        - Stock Movements
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, quantity]
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  example: 10
+                notes:
+                  type: string
+                  example: "Pengiriman barang"
+      responses:
+        '201':
+          description: Barang keluar berhasil dicatat
+
+  /api/movements/history:
+    get:
+      summary: Get movement history
+      tags:
+        - Stock Movements
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [INBOUND, OUTBOUND]
+      responses:
+        '200':
+          description: Berhasil mengambil riwayat pergerakan stok

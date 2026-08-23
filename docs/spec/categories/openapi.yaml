@@ -1,0 +1,78 @@
+openapi: 3.1.0
+info:
+  title: Categories Module
+  version: 1.0.0
+paths:
+  /api/categories:
+    get:
+      summary: Get all categories
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Berhasil mengambil daftar kategori
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        isActive:
+                          type: boolean
+
+    post:
+      summary: Create category baru (ADMIN)
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  example: "Elektronik"
+                description:
+                  type: string
+                  example: "Peralatan elektronik gudang"
+      responses:
+        '201':
+          description: Kategori berhasil dibuat

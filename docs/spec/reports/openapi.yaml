@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: Reporting Module
+  version: 1.0.0
+paths:
+  /api/reports/summary:
+    get:
+      summary: Get summary report
+      tags:
+        - Reports
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            example: "2026-08-23"
+      responses:
+        '200':
+          description: Ringkasan rekapitulasi gudang berhasil diambil
+
+  /api/reports/low-stock:
+    get:
+      summary: Get low stock warning list
+      tags:
+        - Reports
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: threshold
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Daftar produk stok rendah berhasil diambil

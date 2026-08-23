@@ -1,0 +1,572 @@
+openapi: 3.1.0
+info:
+  title: Activity Logs Module
+  version: 1.0.0
+tags:
+  - name: Activity Logs
+    x-displayName: Activity Logs
+  - name: Auth
+    x-displayName: Auth
+  - name: Categories
+    x-displayName: Categories
+  - name: Dashboard
+    x-displayName: Dashboard
+  - name: Locations
+    x-displayName: Locations
+  - name: Products
+    x-displayName: Products
+  - name: Reports
+    x-displayName: Reports
+  - name: Stock Movements
+    x-displayName: Stock Movements
+paths:
+  /api/activity-logs:
+    servers: []
+    get:
+      summary: Get activity logs audit trail
+      tags:
+        - Activity Logs
+      security:
+        - Activity_Logs_Module_bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum:
+              - CREATE
+              - UPDATE
+              - DELETE
+              - LOGIN
+              - LOGOUT
+        - name: entity
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Log aktivitas audit trail berhasil diambil
+  /api/auth/register:
+    servers: []
+    post:
+      summary: Register user baru
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: Admin Gudang
+                email:
+                  type: string
+                  format: email
+                  example: admin@wms.com
+                password:
+                  type: string
+                  format: password
+                  example: admin123
+      responses:
+        '201':
+          description: User berhasil terdaftar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User registered successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+                        example: STAFF
+  /api/auth/login:
+    servers: []
+    post:
+      summary: Login user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: admin@wms.com
+                password:
+                  type: string
+                  example: admin123
+      responses:
+        '200':
+          description: Login berhasil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                      refreshToken:
+                        type: string
+  /api/categories:
+    servers: []
+    get:
+      summary: Get all categories
+      tags:
+        - Categories
+      security:
+        - Categories_Module_bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Berhasil mengambil daftar kategori
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        isActive:
+                          type: boolean
+    post:
+      summary: Create category baru (ADMIN)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: Elektronik
+                description:
+                  type: string
+                  example: Peralatan elektronik gudang
+      responses:
+        '201':
+          description: Kategori berhasil dibuat
+  /api/dashboard/stats:
+    servers: []
+    get:
+      summary: Get real-time dashboard statistics
+      tags:
+        - Dashboard
+      security:
+        - Dashboard_Stats_Module_bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - today
+              - week
+              - month
+            default: week
+      responses:
+        '200':
+          description: Statistik dashboard berhasil diambil
+  /api/dashboard/recent-movements:
+    servers: []
+    get:
+      summary: Get recent stock movements for dashboard
+      tags:
+        - Dashboard
+      security:
+        - Dashboard_Stats_Module_bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Pergerakan barang terbaru berhasil diambil
+  /api/locations:
+    servers: []
+    get:
+      summary: Get all locations
+      tags:
+        - Locations
+      security:
+        - Locations_Module_bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Berhasil mengambil daftar lokasi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Locations retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        code:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        isActive:
+                          type: boolean
+    post:
+      summary: Create location baru (ADMIN)
+      tags:
+        - Locations
+      security:
+        - Locations_Module_bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - name
+              properties:
+                code:
+                  type: string
+                  example: RAK-A1
+                name:
+                  type: string
+                  example: Rak Sektor A1
+                description:
+                  type: string
+                  example: Area penyimpanan komparlemen A
+      responses:
+        '201':
+          description: Lokasi berhasil dibuat
+  /api/products:
+    servers: []
+    get:
+      summary: Get all products
+      tags:
+        - Products
+      security:
+        - Products_Module_bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Berhasil mengambil daftar produk
+    post:
+      summary: Create product baru (ADMIN)
+      tags:
+        - Products
+      security:
+        - Products_Module_bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - sku
+                - categoryId
+                - locationId
+              properties:
+                name:
+                  type: string
+                  example: Mouse Wireless
+                sku:
+                  type: string
+                  example: MS-WRL-001
+                stock:
+                  type: integer
+                  default: 0
+                minimumStock:
+                  type: integer
+                  default: 10
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Produk berhasil dibuat
+  /api/products/{id}/stock:
+    servers: []
+    get:
+      summary: Get product stock info
+      tags:
+        - Products
+      security:
+        - Products_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Berhasil mengambil informasi stok produk
+  /api/reports/summary:
+    servers: []
+    get:
+      summary: Get summary report
+      tags:
+        - Reports
+      security:
+        - Reporting_Module_bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            example: '2026-08-23'
+      responses:
+        '200':
+          description: Ringkasan rekapitulasi gudang berhasil diambil
+  /api/reports/low-stock:
+    servers: []
+    get:
+      summary: Get low stock warning list
+      tags:
+        - Reports
+      security:
+        - Reporting_Module_bearerAuth: []
+      parameters:
+        - name: threshold
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Daftar produk stok rendah berhasil diambil
+  /api/movements/inbound:
+    servers: []
+    post:
+      summary: Catat barang masuk (INBOUND)
+      tags:
+        - Stock Movements
+      security:
+        - Stock_Movements_Module_bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  example: 50
+                notes:
+                  type: string
+                  example: Restok dari Supplier A
+      responses:
+        '201':
+          description: Barang masuk berhasil dicatat
+  /api/movements/outbound:
+    servers: []
+    post:
+      summary: Catat barang keluar (OUTBOUND)
+      tags:
+        - Stock Movements
+      security:
+        - Stock_Movements_Module_bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  example: 10
+                notes:
+                  type: string
+                  example: Pengiriman barang
+      responses:
+        '201':
+          description: Barang keluar berhasil dicatat
+  /api/movements/history:
+    servers: []
+    get:
+      summary: Get movement history
+      tags:
+        - Stock Movements
+      security:
+        - Stock_Movements_Module_bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum:
+              - INBOUND
+              - OUTBOUND
+      responses:
+        '200':
+          description: Berhasil mengambil riwayat pergerakan stok
+components: {}

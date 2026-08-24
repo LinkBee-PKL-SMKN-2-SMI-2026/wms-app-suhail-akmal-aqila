@@ -10,14 +10,18 @@ import type {
   UpdateLocationRequest,
   DeleteLocationParams,
 } from '../models/location.dto';
+// [ACTIVITY LOG] Import AuthRequest untuk mendapatkan req.user.userId & import service logActivity
+import type { AuthRequest } from '../models/auth.model';
 import { AppError } from '../utils/AppError';
 import { catchAsync } from '../utils/catchAsync';
+import { logActivity } from '../services/activity-log.service';
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL! });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-export const createLocation = catchAsync(async (req: Request, res: Response) => {
+// [ACTIVITY LOG] Mengubah tipe req menjadi AuthRequest
+export const createLocation = catchAsync(async (req: AuthRequest, res: Response) => {
   const { name, code } = req.body as CreateLocationRequest;
 
   const existingCode = await prisma.locations.findUnique({ where: { code } });
@@ -28,6 +32,17 @@ export const createLocation = catchAsync(async (req: Request, res: Response) => 
   const location = await prisma.locations.create({
     data: { name, code },
   });
+
+  // [ACTIVITY LOG] Catat aktivitas pembuatan lokasi baru
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'CREATE',
+      entity: 'Locations',
+      entityId: location.id,
+      detail: { name: location.name, code: location.code },
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -98,7 +113,8 @@ export const getLocationById = catchAsync(async (req: Request, res: Response) =>
   });
 });
 
-export const updateLocation = catchAsync(async (req: Request, res: Response) => {
+// [ACTIVITY LOG] Mengubah tipe req menjadi AuthRequest
+export const updateLocation = catchAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as UpdateLocationParams;
   const { name, code, isActive } = req.body as UpdateLocationRequest;
 
@@ -119,6 +135,17 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
     data: { name, code, isActive },
   });
 
+  // [ACTIVITY LOG] Catat aktivitas pembaruan data lokasi
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'UPDATE',
+      entity: 'Locations',
+      entityId: updated.id,
+      detail: { changes: { name, code, isActive } },
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Lokasi berhasil diperbarui',
@@ -126,7 +153,8 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
-export const deleteLocation = catchAsync(async (req: Request, res: Response) => {
+// [ACTIVITY LOG] Mengubah tipe req menjadi AuthRequest
+export const deleteLocation = catchAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as DeleteLocationParams;
 
   const location = await prisma.locations.findUnique({
@@ -146,10 +174,18 @@ export const deleteLocation = catchAsync(async (req: Request, res: Response) => 
 
   await prisma.locations.delete({ where: { id } });
 
+  // [ACTIVITY LOG] Catat aktivitas penghapusan lokasi
+  if (req.user?.userId) {
+    await logActivity({
+      userId: req.user.userId,
+      action: 'DELETE',
+      entity: 'Locations',
+      entityId: id,
+    });
+  }
+
   res.status(200).json({
     success: true,
     message: 'Lokasi berhasil dihapus',
   });
 });
-
-//.

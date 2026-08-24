@@ -79,8 +79,8 @@ export const createCategory = catchAsync(async (req: Request, res: Response) => 
 export const getAllCategories = catchAsync(async (req: Request, res: Response) => {
   const { page = '1', limit = '10', search, sort = 'desc' } = req.query as GetAllCategoryQuery;
 
-  const pageNum = Math.max(1, parseInt(page, 10));
-  const limitNum = Math.max(1, parseInt(limit, 10));
+  const pageNum = Number(page);
+  const limitNum = Number(limit);
   const skip = (pageNum - 1) * limitNum;
 
   const where = search ? { name: { contains: search, mode: 'insensitive' as const } } : {};

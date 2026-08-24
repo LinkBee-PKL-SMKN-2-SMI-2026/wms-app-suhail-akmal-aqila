@@ -3,7 +3,7 @@ info:
   title: Categories Module
   version: 1.0.0
 paths:
-  /api/categories:
+  /categories:
     get:
       summary: Get all categories
       tags:
@@ -38,6 +38,7 @@ paths:
                     example: true
                   message:
                     type: string
+                    example: "Categories retrieved successfully"
                   data:
                     type: array
                     items:
@@ -76,3 +77,76 @@ paths:
       responses:
         '201':
           description: Kategori berhasil dibuat
+
+  /categories/{id}:
+    get:
+      summary: Get category by ID
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detail kategori berhasil ditemukan
+        '404':
+          description: Kategori tidak ditemukan
+
+    put:
+      summary: Update category (ADMIN)
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Kategori berhasil diperbarui
+
+    delete:
+      summary: Delete category (ADMIN)
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Kategori berhasil dihapus
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

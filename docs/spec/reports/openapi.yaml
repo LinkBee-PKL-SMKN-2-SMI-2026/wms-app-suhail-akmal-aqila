@@ -3,7 +3,7 @@ info:
   title: Reporting Module
   version: 1.0.0
 paths:
-  /api/reports/summary:
+  /reports/summary:
     get:
       summary: Get summary report
       tags:
@@ -19,8 +19,36 @@ paths:
       responses:
         '200':
           description: Ringkasan rekapitulasi gudang berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Summary report retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 150
+                      totalStock:
+                        type: integer
+                        example: 3200
+                      lowStockCount:
+                        type: integer
+                        example: 5
+                      totalCategories:
+                        type: integer
+                        example: 8
+        '401':
+          description: Unauthorized - Token tidak valid
 
-  /api/reports/low-stock:
+  /reports/low-stock:
     get:
       summary: Get low stock warning list
       tags:
@@ -46,3 +74,44 @@ paths:
       responses:
         '200':
           description: Daftar produk stok rendah berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Low stock report retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                          example: "Kabel LAN Cat6"
+                        sku:
+                          type: string
+                          example: "KBL-CAT6-01"
+                        stock:
+                          type: integer
+                          example: 3
+                        minimumStock:
+                          type: integer
+                          example: 10
+        '401':
+          description: Unauthorized - Token tidak valid
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

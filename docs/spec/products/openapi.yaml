@@ -3,7 +3,7 @@ info:
   title: Products Module
   version: 1.0.0
 paths:
-  /api/products:
+  /products:
     get:
       summary: Get all products
       tags:
@@ -28,6 +28,39 @@ paths:
       responses:
         '200':
           description: Berhasil mengambil daftar produk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Products retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        sku:
+                          type: string
+                        stock:
+                          type: integer
+                        minimumStock:
+                          type: integer
+                        categoryId:
+                          type: string
+                          format: uuid
+                        locationId:
+                          type: string
+                          format: uuid
 
     post:
       summary: Create product baru (ADMIN)
@@ -65,7 +98,82 @@ paths:
         '201':
           description: Produk berhasil dibuat
 
-  /api/products/{id}/stock:
+  /products/{id}:
+    get:
+      summary: Get product by ID
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detail produk berhasil ditemukan
+        '404':
+          description: Produk tidak ditemukan
+
+    put:
+      summary: Update product (ADMIN)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                sku:
+                  type: string
+                stock:
+                  type: integer
+                minimumStock:
+                  type: integer
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Produk berhasil diperbarui
+
+    delete:
+      summary: Delete product (ADMIN)
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Produk berhasil dihapus
+
+  /products/{id}/stock:
     get:
       summary: Get product stock info
       tags:
@@ -82,3 +190,11 @@ paths:
       responses:
         '200':
           description: Berhasil mengambil informasi stok produk
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

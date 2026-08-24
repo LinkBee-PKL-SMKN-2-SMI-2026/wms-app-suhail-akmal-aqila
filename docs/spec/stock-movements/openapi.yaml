@@ -3,7 +3,7 @@ info:
   title: Stock Movements Module
   version: 1.0.0
 paths:
-  /api/movements/inbound:
+  /movements/inbound:
     post:
       summary: Catat barang masuk (INBOUND)
       tags:
@@ -30,8 +30,34 @@ paths:
       responses:
         '201':
           description: Barang masuk berhasil dicatat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Inbound stock movement recorded successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                        example: "INBOUND"
+                      quantity:
+                        type: integer
+                        example: 50
+                      productId:
+                        type: string
+                        format: uuid
 
-  /api/movements/outbound:
+  /movements/outbound:
     post:
       summary: Catat barang keluar (OUTBOUND)
       tags:
@@ -58,8 +84,34 @@ paths:
       responses:
         '201':
           description: Barang keluar berhasil dicatat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Outbound stock movement recorded successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                        example: "OUTBOUND"
+                      quantity:
+                        type: integer
+                        example: 10
+                      productId:
+                        type: string
+                        format: uuid
 
-  /api/movements/history:
+  /movements/history:
     get:
       summary: Get movement history
       tags:
@@ -85,3 +137,44 @@ paths:
       responses:
         '200':
           description: Berhasil mengambil riwayat pergerakan stok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Movement history retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          example: "INBOUND"
+                        quantity:
+                          type: integer
+                          example: 50
+                        notes:
+                          type: string
+                        productId:
+                          type: string
+                          format: uuid
+                        createdAt:
+                          type: string
+                          format: date-time
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

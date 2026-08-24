@@ -3,7 +3,7 @@ info:
   title: Dashboard Stats Module
   version: 1.0.0
 paths:
-  /api/dashboard/stats:
+  /dashboard/stats:
     get:
       summary: Get real-time dashboard statistics
       tags:
@@ -20,8 +20,36 @@ paths:
       responses:
         '200':
           description: Statistik dashboard berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Dashboard stats retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 120
+                      totalStock:
+                        type: integer
+                        example: 4500
+                      stockInPeriod:
+                        type: integer
+                        example: 300
+                      stockOutPeriod:
+                        type: integer
+                        example: 150
+        '401':
+          description: Unauthorized - Token tidak valid
 
-  /api/dashboard/recent-movements:
+  /dashboard/recent-movements:
     get:
       summary: Get recent stock movements for dashboard
       tags:
@@ -42,3 +70,44 @@ paths:
       responses:
         '200':
           description: Pergerakan barang terbaru berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Recent movements retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          example: "IN"
+                        quantity:
+                          type: integer
+                          example: 50
+                        productName:
+                          type: string
+                          example: "Semen Tiga Roda"
+                        createdAt:
+                          type: string
+                          format: date-time
+        '401':
+          description: Unauthorized - Token tidak valid
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

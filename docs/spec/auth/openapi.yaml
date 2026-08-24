@@ -3,7 +3,7 @@ info:
   title: Auth Module
   version: 1.0.0
 paths:
-  /api/auth/register:
+  /auth/register:
     post:
       summary: Register user baru
       tags:
@@ -55,7 +55,7 @@ paths:
                         type: string
                         example: "STAFF"
 
-  /api/auth/login:
+  /auth/login:
     post:
       summary: Login user
       tags:
@@ -96,3 +96,48 @@ paths:
                         type: string
                       refreshToken:
                         type: string
+
+  /auth/me:
+    get:
+      summary: Get current user profile
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Berhasil mengambil profil user yang sedang login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User profile retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+                        example: "ADMIN"
+        '401':
+          description: Unauthorized - Token tidak ditemukan atau tidak valid
+          
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

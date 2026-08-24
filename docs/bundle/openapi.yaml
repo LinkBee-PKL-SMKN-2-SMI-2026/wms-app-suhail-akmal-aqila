@@ -20,7 +20,7 @@ tags:
   - name: Stock Movements
     x-displayName: Stock Movements
 paths:
-  /api/activity-logs:
+  /activity-logs:
     servers: []
     get:
       summary: Get activity logs audit trail
@@ -54,9 +54,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Log aktivitas audit trail berhasil diambil
-  /api/auth/register:
+  /auth/register:
     servers: []
     post:
       summary: Register user baru
@@ -85,7 +85,7 @@ paths:
                   format: password
                   example: admin123
       responses:
-        '201':
+        "201":
           description: User berhasil terdaftar
           content:
             application/json:
@@ -111,7 +111,7 @@ paths:
                       role:
                         type: string
                         example: STAFF
-  /api/auth/login:
+  /auth/login:
     servers: []
     post:
       summary: Login user
@@ -135,7 +135,7 @@ paths:
                   type: string
                   example: admin123
       responses:
-        '200':
+        "200":
           description: Login berhasil
           content:
             application/json:
@@ -155,7 +155,44 @@ paths:
                         type: string
                       refreshToken:
                         type: string
-  /api/categories:
+  /auth/me:
+    servers: []
+    get:
+      summary: Get current user profile
+      tags:
+        - Auth
+      security:
+        - Auth_Module_bearerAuth: []
+      responses:
+        "200":
+          description: Berhasil mengambil profil user yang sedang login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User profile retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      role:
+                        type: string
+                        example: ADMIN
+        "401":
+          description: Unauthorized - Token tidak ditemukan atau tidak valid
+  /categories:
     servers: []
     get:
       summary: Get all categories
@@ -179,7 +216,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar kategori
           content:
             application/json:
@@ -191,6 +228,7 @@ paths:
                     example: true
                   message:
                     type: string
+                    example: Categories retrieved successfully
                   data:
                     type: array
                     items:
@@ -227,9 +265,72 @@ paths:
                   type: string
                   example: Peralatan elektronik gudang
       responses:
-        '201':
+        "201":
           description: Kategori berhasil dibuat
-  /api/dashboard/stats:
+  /categories/{id}:
+    servers: []
+    get:
+      summary: Get category by ID
+      tags:
+        - Categories
+      security:
+        - Categories_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Detail kategori berhasil ditemukan
+        "404":
+          description: Kategori tidak ditemukan
+    put:
+      summary: Update category (ADMIN)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Kategori berhasil diperbarui
+    delete:
+      summary: Delete category (ADMIN)
+      tags:
+        - Categories
+      security:
+        - Categories_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Kategori berhasil dihapus
+  /dashboard/stats:
     servers: []
     get:
       summary: Get real-time dashboard statistics
@@ -248,9 +349,37 @@ paths:
               - month
             default: week
       responses:
-        '200':
+        "200":
           description: Statistik dashboard berhasil diambil
-  /api/dashboard/recent-movements:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Dashboard stats retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 120
+                      totalStock:
+                        type: integer
+                        example: 4500
+                      stockInPeriod:
+                        type: integer
+                        example: 300
+                      stockOutPeriod:
+                        type: integer
+                        example: 150
+        "401":
+          description: Unauthorized - Token tidak valid
+  /dashboard/recent-movements:
     servers: []
     get:
       summary: Get recent stock movements for dashboard
@@ -270,9 +399,42 @@ paths:
             type: integer
             default: 10
       responses:
-        '200':
+        "200":
           description: Pergerakan barang terbaru berhasil diambil
-  /api/locations:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Recent movements retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          example: IN
+                        quantity:
+                          type: integer
+                          example: 50
+                        productName:
+                          type: string
+                          example: Semen Tiga Roda
+                        createdAt:
+                          type: string
+                          format: date-time
+        "401":
+          description: Unauthorized - Token tidak valid
+  /locations:
     servers: []
     get:
       summary: Get all locations
@@ -296,7 +458,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar lokasi
           content:
             application/json:
@@ -351,9 +513,74 @@ paths:
                   type: string
                   example: Area penyimpanan komparlemen A
       responses:
-        '201':
+        "201":
           description: Lokasi berhasil dibuat
-  /api/products:
+  /locations/{id}:
+    servers: []
+    get:
+      summary: Get location by ID
+      tags:
+        - Locations
+      security:
+        - Locations_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Detail lokasi berhasil ditemukan
+        "404":
+          description: Lokasi tidak ditemukan
+    put:
+      summary: Update location (ADMIN)
+      tags:
+        - Locations
+      security:
+        - Locations_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Lokasi berhasil diperbarui
+    delete:
+      summary: Delete location (ADMIN)
+      tags:
+        - Locations
+      security:
+        - Locations_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lokasi berhasil dihapus
+  /products:
     servers: []
     get:
       summary: Get all products
@@ -377,8 +604,41 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil daftar produk
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Products retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        sku:
+                          type: string
+                        stock:
+                          type: integer
+                        minimumStock:
+                          type: integer
+                        categoryId:
+                          type: string
+                          format: uuid
+                        locationId:
+                          type: string
+                          format: uuid
     post:
       summary: Create product baru (ADMIN)
       tags:
@@ -416,9 +676,82 @@ paths:
                   type: string
                   format: uuid
       responses:
-        '201':
+        "201":
           description: Produk berhasil dibuat
-  /api/products/{id}/stock:
+  /products/{id}:
+    servers: []
+    get:
+      summary: Get product by ID
+      tags:
+        - Products
+      security:
+        - Products_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Detail produk berhasil ditemukan
+        "404":
+          description: Produk tidak ditemukan
+    put:
+      summary: Update product (ADMIN)
+      tags:
+        - Products
+      security:
+        - Products_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                sku:
+                  type: string
+                stock:
+                  type: integer
+                minimumStock:
+                  type: integer
+                categoryId:
+                  type: string
+                  format: uuid
+                locationId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Produk berhasil diperbarui
+    delete:
+      summary: Delete product (ADMIN)
+      tags:
+        - Products
+      security:
+        - Products_Module_bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Produk berhasil dihapus
+  /products/{id}/stock:
     servers: []
     get:
       summary: Get product stock info
@@ -434,9 +767,9 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil informasi stok produk
-  /api/reports/summary:
+  /reports/summary:
     servers: []
     get:
       summary: Get summary report
@@ -449,11 +782,39 @@ paths:
           in: query
           schema:
             type: string
-            example: '2026-08-23'
+            example: 2026-08-23
       responses:
-        '200':
+        "200":
           description: Ringkasan rekapitulasi gudang berhasil diambil
-  /api/reports/low-stock:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Summary report retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 150
+                      totalStock:
+                        type: integer
+                        example: 3200
+                      lowStockCount:
+                        type: integer
+                        example: 5
+                      totalCategories:
+                        type: integer
+                        example: 8
+        "401":
+          description: Unauthorized - Token tidak valid
+  /reports/low-stock:
     servers: []
     get:
       summary: Get low stock warning list
@@ -478,9 +839,42 @@ paths:
             type: integer
             default: 10
       responses:
-        '200':
+        "200":
           description: Daftar produk stok rendah berhasil diambil
-  /api/movements/inbound:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Low stock report retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                          example: Kabel LAN Cat6
+                        sku:
+                          type: string
+                          example: KBL-CAT6-01
+                        stock:
+                          type: integer
+                          example: 3
+                        minimumStock:
+                          type: integer
+                          example: 10
+        "401":
+          description: Unauthorized - Token tidak valid
+  /movements/inbound:
     servers: []
     post:
       summary: Catat barang masuk (INBOUND)
@@ -508,9 +902,35 @@ paths:
                   type: string
                   example: Restok dari Supplier A
       responses:
-        '201':
+        "201":
           description: Barang masuk berhasil dicatat
-  /api/movements/outbound:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Inbound stock movement recorded successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                        example: INBOUND
+                      quantity:
+                        type: integer
+                        example: 50
+                      productId:
+                        type: string
+                        format: uuid
+  /movements/outbound:
     servers: []
     post:
       summary: Catat barang keluar (OUTBOUND)
@@ -538,9 +958,35 @@ paths:
                   type: string
                   example: Pengiriman barang
       responses:
-        '201':
+        "201":
           description: Barang keluar berhasil dicatat
-  /api/movements/history:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Outbound stock movement recorded successfully
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                        example: OUTBOUND
+                      quantity:
+                        type: integer
+                        example: 10
+                      productId:
+                        type: string
+                        format: uuid
+  /movements/history:
     servers: []
     get:
       summary: Get movement history
@@ -567,6 +1013,75 @@ paths:
               - INBOUND
               - OUTBOUND
       responses:
-        '200':
+        "200":
           description: Berhasil mengambil riwayat pergerakan stok
-components: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Movement history retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          example: INBOUND
+                        quantity:
+                          type: integer
+                          example: 50
+                        notes:
+                          type: string
+                        productId:
+                          type: string
+                          format: uuid
+                        createdAt:
+                          type: string
+                          format: date-time
+components:
+  securitySchemes:
+    Activity_Logs_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Auth_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Categories_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Dashboard_Stats_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Locations_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Products_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Reporting_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    Stock_Movements_Module_bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers:
+  - url: http://localhost:3000/api
+    description: Local development

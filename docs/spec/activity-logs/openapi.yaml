@@ -3,7 +3,7 @@ info:
   title: Activity Logs Module
   version: 1.0.0
 paths:
-  /api/activity-logs:
+  /activity-logs:
     get:
       summary: Get activity logs audit trail
       tags:
@@ -33,3 +33,11 @@ paths:
       responses:
         '200':
           description: Log aktivitas audit trail berhasil diambil
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

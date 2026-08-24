@@ -3,7 +3,7 @@ info:
   title: Locations Module
   version: 1.0.0
 paths:
-  /api/locations:
+  /locations:
     get:
       summary: Get all locations
       tags:
@@ -82,3 +82,78 @@ paths:
       responses:
         '201':
           description: Lokasi berhasil dibuat
+
+  /locations/{id}:
+    get:
+      summary: Get location by ID
+      tags:
+        - Locations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detail lokasi berhasil ditemukan
+        '404':
+          description: Lokasi tidak ditemukan
+
+    put:
+      summary: Update location (ADMIN)
+      tags:
+        - Locations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Lokasi berhasil diperbarui
+
+    delete:
+      summary: Delete location (ADMIN)
+      tags:
+        - Locations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lokasi berhasil dihapus
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

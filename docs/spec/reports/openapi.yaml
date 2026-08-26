@@ -1,0 +1,117 @@
+openapi: 3.1.0
+info:
+  title: Reporting Module
+  version: 1.0.0
+paths:
+  /reports/summary:
+    get:
+      summary: Get summary report
+      tags:
+        - Reports
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            example: "2026-08-23"
+      responses:
+        '200':
+          description: Ringkasan rekapitulasi gudang berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Summary report retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                        example: 150
+                      totalStock:
+                        type: integer
+                        example: 3200
+                      lowStockCount:
+                        type: integer
+                        example: 5
+                      totalCategories:
+                        type: integer
+                        example: 8
+        '401':
+          description: Unauthorized - Token tidak valid
+
+  /reports/low-stock:
+    get:
+      summary: Get low stock warning list
+      tags:
+        - Reports
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: threshold
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Daftar produk stok rendah berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Low stock report retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                          example: "Kabel LAN Cat6"
+                        sku:
+                          type: string
+                          example: "KBL-CAT6-01"
+                        stock:
+                          type: integer
+                          example: 3
+                        minimumStock:
+                          type: integer
+                          example: 10
+        '401':
+          description: Unauthorized - Token tidak valid
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

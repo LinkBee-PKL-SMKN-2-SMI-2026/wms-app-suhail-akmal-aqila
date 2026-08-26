@@ -1,0 +1,43 @@
+openapi: 3.1.0
+info:
+  title: Activity Logs Module
+  version: 1.0.0
+paths:
+  /activity-logs:
+    get:
+      summary: Get activity logs audit trail
+      tags:
+        - Activity Logs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [CREATE, UPDATE, DELETE, LOGIN, LOGOUT]
+        - name: entity
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Log aktivitas audit trail berhasil diambil
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

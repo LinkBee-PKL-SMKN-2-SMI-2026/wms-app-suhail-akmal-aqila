@@ -4,10 +4,14 @@ import { logger } from '../utils/logger';
 import pinoHttp from 'pino-http';
 import routes from '../routes/index';
 import { errorHandler } from '../middlewares/errorHandler.middleware';
+import cors from 'cors';
 
 // Inisialisasi App
 const app = express();
 const PORT = process.env.PORT;
+
+// ini cors tambahan baru tadi ke block
+app.use(cors());
 
 // Register Middleware
 app.use(express.json()); // Default: Jangan dihapus

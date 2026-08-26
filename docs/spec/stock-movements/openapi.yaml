@@ -1,0 +1,180 @@
+openapi: 3.1.0
+info:
+  title: Stock Movements Module
+  version: 1.0.0
+paths:
+  /movements/inbound:
+    post:
+      summary: Catat barang masuk (INBOUND)
+      tags:
+        - Stock Movements
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, quantity]
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  example: 50
+                notes:
+                  type: string
+                  example: "Restok dari Supplier A"
+      responses:
+        '201':
+          description: Barang masuk berhasil dicatat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Inbound stock movement recorded successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                        example: "INBOUND"
+                      quantity:
+                        type: integer
+                        example: 50
+                      productId:
+                        type: string
+                        format: uuid
+
+  /movements/outbound:
+    post:
+      summary: Catat barang keluar (OUTBOUND)
+      tags:
+        - Stock Movements
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, quantity]
+              properties:
+                productId:
+                  type: string
+                  format: uuid
+                quantity:
+                  type: integer
+                  example: 10
+                notes:
+                  type: string
+                  example: "Pengiriman barang"
+      responses:
+        '201':
+          description: Barang keluar berhasil dicatat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Outbound stock movement recorded successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      type:
+                        type: string
+                        example: "OUTBOUND"
+                      quantity:
+                        type: integer
+                        example: 10
+                      productId:
+                        type: string
+                        format: uuid
+
+  /movements/history:
+    get:
+      summary: Get movement history
+      tags:
+        - Stock Movements
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [INBOUND, OUTBOUND]
+      responses:
+        '200':
+          description: Berhasil mengambil riwayat pergerakan stok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Movement history retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        type:
+                          type: string
+                          example: "INBOUND"
+                        quantity:
+                          type: integer
+                          example: 50
+                        notes:
+                          type: string
+                        productId:
+                          type: string
+                          format: uuid
+                        createdAt:
+                          type: string
+                          format: date-time
+
+# Tambahkan bagian ini di level paling luar (sejajar dengan info dan paths)
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
